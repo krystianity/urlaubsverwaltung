@@ -16,9 +16,7 @@ import java.util.function.Supplier;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.FAMILY_NAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.GIVEN_NAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.SUB;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.*;
 
 class PersonOnSuccessfullyOidcLoginEventHandler {
 
@@ -79,14 +77,25 @@ class PersonOnSuccessfullyOidcLoginEventHandler {
             });
     }
 
+    private Optional<String> parsePartialNameFromName(OidcUser oidcUser, int index) {
+        return getClaimAsString(oidcUser, () -> NAME).map(name -> {
+
+            if(name.split(" ").length > 1) {
+                return name.split(" ")[index];
+            }
+
+            return null;
+        });
+    }
+
     private String extractFamilyName(OidcUser oidcUser) {
         return getClaimAsString(oidcUser, () -> FAMILY_NAME)
-            .orElse("Name");
+            .orElse(parsePartialNameFromName(oidcUser, 1).orElse("Name"));
     }
 
     private String extractGivenName(OidcUser oidcUser) {
         return getClaimAsString(oidcUser, () -> GIVEN_NAME)
-            .orElse("Unknown");
+            .orElse(parsePartialNameFromName(oidcUser, 0).orElse("Unknown"));
     }
 
     private String extractMailAddress(OidcUser oidcUser) {
