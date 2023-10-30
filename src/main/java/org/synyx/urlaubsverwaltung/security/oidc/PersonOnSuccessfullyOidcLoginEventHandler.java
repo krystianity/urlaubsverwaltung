@@ -81,18 +81,12 @@ class PersonOnSuccessfullyOidcLoginEventHandler {
 
     private String extractFamilyName(OidcUser oidcUser) {
         return getClaimAsString(oidcUser, () -> FAMILY_NAME)
-            .orElseThrow(() -> {
-                LOG.error("Can not retrieve the family name for oidc person mapping");
-                return new OidcPersonMappingException("Can not retrieve the family name for oidc person mapping");
-            });
+            .orElse("Name");
     }
 
     private String extractGivenName(OidcUser oidcUser) {
         return getClaimAsString(oidcUser, () -> GIVEN_NAME)
-            .orElseThrow(() -> {
-                LOG.error("Can not retrieve the given name for oidc person mapping");
-                return new OidcPersonMappingException("Can not retrieve the given name for oidc person mapping");
-            });
+            .orElse("Unknown");
     }
 
     private String extractMailAddress(OidcUser oidcUser) {
